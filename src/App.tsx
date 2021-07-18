@@ -1,8 +1,39 @@
-import React from 'react';
-import welcomeIcon from './assets/welcome.jpg';
+import React, {useEffect} from 'react';
+import Tabs, {Tab} from './components/Tabs'
+import List from './views/ListView';
+import styled from "styled-components"
+import { fetchMerchants, selectBilledMerchant, selectNotBilledMerchant, selectMerchants } from './redux/merchantsSlice'
+import { useDispatch, useSelector } from 'react-redux';
 
-const App: React.FunctionComponent = () => (
-  <img src={welcomeIcon} alt="Welcome!"/>
-);
+type Props = {
+  className?: string
+}
 
-export default App;
+const App: React.FunctionComponent<Props> = ({className}) => {
+  const dispatch = useDispatch()
+
+  const billedMerchantList = useSelector(selectBilledMerchant)
+  const notBilledMerchantList = useSelector(selectNotBilledMerchant)
+  const { isLoading, data } = useSelector(selectMerchants)
+
+  useEffect(() => {
+    dispatch(fetchMerchants())
+  }, [dispatch])
+
+
+  return (
+    !isLoading && data.length ? (<div className={className}>
+      <Tabs>
+        <Tab title="Billed Merchants">
+          <List items={billedMerchantList}></List>
+        </Tab>
+        <Tab title="Not Billed Merchants">
+          <List items={notBilledMerchantList}></List>
+        </Tab>
+      </Tabs>
+    </div>) : <>Loading</>
+)};
+
+export default styled(App)`
+ padding: 30px 100px;
+`;
